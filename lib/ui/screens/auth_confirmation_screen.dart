@@ -40,13 +40,7 @@ class _AuthConfirmationScreenState extends State<AuthConfirmationScreen> {
       codeLength: _codeLength,
       onCodeReceive: (code) => debugPrint('Your Application receive code - $code'),
       otpInteractor: _otpInteractor,
-    )..startListenUserConsent(
-        (code) {
-          final exp = RegExp(r'\d' '{$_codeLength}');
-
-          return exp.stringMatch(code ?? '') ?? '';
-        },
-      );
+    )..startListenUserConsent(_setCode);
   }
 
   @override
@@ -86,5 +80,12 @@ class _AuthConfirmationScreenState extends State<AuthConfirmationScreen> {
   Future<void> dispose() async {
     super.dispose();
     await _codeController.stopListen();
+  }
+
+  /// Подставить код в поле
+  String _setCode(String? code) {
+    final exp = RegExp(r'\d' '{$_codeLength}');
+
+    return exp.stringMatch(code ?? '') ?? '';
   }
 }
