@@ -15,6 +15,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:otp_autofill/otp_autofill.dart';
+import 'package:otp_autofill_demo/ui/screens/auth_confirmation_screen.dart';
 
 /// Экран входа
 class LoginScreen extends StatefulWidget {
@@ -63,6 +64,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         prefix: Text('+'),
                       ),
                       maxLength: _phoneLength,
+                      onSubmitted: _validatePhone,
                       inputFormatters: [
                         FilteringTextInputFormatter.digitsOnly,
                       ],
@@ -85,7 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 40),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () => _validatePhone(_phoneController.text),
                   child: const Text('Войти'),
                 ),
               ],
@@ -136,6 +138,37 @@ class _LoginScreenState extends State<LoginScreen> {
     return SnackBar(
       backgroundColor: Colors.pink,
       content: Text(message),
+    );
+  }
+
+  /// Валидация поля
+  void _validatePhone(String? value) {
+    FocusScope.of(context).unfocus();
+
+    if (value != null && value.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        _exceptionSnackBar('Обязательное поле'),
+      );
+
+      return;
+    }
+
+    if (value != null && value.length < _phoneLength) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        _exceptionSnackBar('Некорректный номер телефона'),
+      );
+
+      return;
+    }
+
+    /// Получаем подпись приложения
+    _otpInteractor.getAppSignature().then((value) => debugPrint('signature - $value'));
+
+    Navigator.push<void>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const AuthConfirmationScreen(),
+      ),
     );
   }
 }
